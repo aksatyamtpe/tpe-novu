@@ -1,6 +1,6 @@
 # Novu CE on EC2 — Skill Index
 
-Ten skills covering the Track B (single-EC2 pilot) deployment lifecycle for the TPE Communication System on Novu Community Edition.
+Twelve skills covering the Track B (single-EC2 / VPS pilot) deployment lifecycle for the TPE Communication System on Novu Community Edition, including the 2026-05-01 sandbox-3.15-primary pivot.
 
 ## Build sequence (use in order for a first deployment)
 
@@ -22,10 +22,28 @@ Ten skills covering the Track B (single-EC2 pilot) deployment lifecycle for the 
 | 9 | [novu-ce-upgrade](novu-ce-upgrade/SKILL.md) | "upgrade novu", "bump to 2.4.x", "release upgrade" |
 | 10 | [novu-ce-troubleshoot](novu-ce-troubleshoot/SKILL.md) | "caddy can't get cert", "bridge unhealthy", "queue backlog", "mongo CPU high" |
 
+## Pivot-era skills (post 2026-05-01 architecture change)
+
+| # | Skill | Trigger phrases |
+|---|---|---|
+| 11 | [novu-ce-sandbox-bridge-recreate](novu-ce-sandbox-bridge-recreate/SKILL.md) | "recreate next-bridge", "sandbox bridge has placeholder creds", "restore real MSG91 + ICPaaS env on sandbox bridge" |
+| 12 | [novu-ce-pivot-rollback](novu-ce-pivot-rollback/SKILL.md) | "roll back the pivot", "bring TPE Admin back", "revert sandbox primary", "restore custom admin" |
+
 ## Scope
 
 These skills cover **Track B only** — the single-EC2 pilot via Docker Compose. For Track A (multi-AZ ECS Fargate production), use the Terraform bundle directly (`deployment/novu-terraform.tar.gz`) and follow §5 of the Combined Deployment Guide.
 
+The pivot-era skills (11, 12) are specific to the 2026-05-01 architecture decision documented in `memory/sandbox_315_primary.md`. They handle the operational reality that two parallel Novu stacks (live 2.3.0 + sandbox 3.15) coexist on the same VPS.
+
 ## Source of truth
 
 Every skill cross-references stable section numbers in `deployment/Novu-Combined-Deployment-Guide.docx`. Quote those numbers when handing instructions back to the user — they're the authoritative paragraph references the team uses.
+
+## Related project memory
+
+- `architecture_tracks.md` — Track A vs Track B decision rule
+- `architecture_code_first_only.md` — Studio UI authoring is forbidden
+- `sandbox_315_primary.md` — the pivot context for skills 11+12
+- `git_repo_setup.md` — GitHub repo coordinates + SSH alias map for this machine
+- `novu_3x_payload_gotchas.md` — strict zod validation gotchas in 3.x
+- `vkyc_repo_secret_leak.md` — security finding (related, not Novu)
