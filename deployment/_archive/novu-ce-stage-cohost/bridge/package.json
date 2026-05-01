@@ -1,0 +1,26 @@
+{
+  "name": "novu-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bridge application demonstrating every CE workflow capability via @novu/framework",
+  "scripts": {
+    "dev": "next dev -p 4001",
+    "build": "next build",
+    "start": "next start -p 4001",
+    "sync": "novu sync --bridge-url http://localhost:4001/api/novu --api-url http://localhost:3000 --secret-key $NOVU_SECRET_KEY"
+  },
+  "dependencies": {
+    "@novu/framework": "^2.6.0",
+    "next": "14.2.10",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.10",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "novu": "^2.0.0",
+    "typescript": "5.5.3"
+  }
+}

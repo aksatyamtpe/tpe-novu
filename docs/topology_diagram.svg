@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1400" viewBox="0 0 1200 1400">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#1F3A5F"/>
+    </marker>
+    <filter id="softShadow" x="-2%" y="-2%" width="104%" height="104%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1F3A5F" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- background -->
+  <rect width="1200" height="1400" fill="#FFFFFF"/>
+
+  <!-- ====== LAYER 1: UPSTREAM SERVICES ====== -->
+  <g filter="url(#softShadow)">
+    <rect x="16" y="30" width="1168" height="130" fill="#F8F9FB" stroke="#1F3A5F" stroke-width="2.5" rx="6"/>
+  </g>
+  <text x="40" y="62" font-family="Inter, Calibri, Arial, sans-serif" font-size="20" font-weight="bold" fill="#1F3A5F" text-anchor="start">UPSTREAM SERVICES</text>
+  <text x="336" y="62" font-family="Inter, Calibri, Arial, sans-serif" font-size="14" font-weight="normal" fill="#6E7A88" text-anchor="start">— TPE existing service catalogue</text>
+  <text x="40" y="94" font-family="Inter, Calibri, Arial, sans-serif" font-size="16" font-weight="normal" fill="#222222" text-anchor="start">Lead Capture  ·  KYC Service  ·  Policy Servicing  ·  Loan Servicing  ·  Surrender Pricing</text>
+  <text x="40" y="118" font-family="Inter, Calibri, Arial, sans-serif" font-size="16" font-weight="normal" fill="#222222" text-anchor="start">Loan Origination  ·  Insurer Adapters  ·  Compliance Calendar  ·  Document Service</text>
+  <text x="40" y="142" font-family="Inter, Calibri, Arial, sans-serif" font-size="16" font-weight="normal" fill="#222222" text-anchor="start">Payment Gateway</text>
+
+  <!-- arrow Upstream → Trigger Relay -->
+  
+    <line x1="600" y1="160" x2="600" y2="226" stroke="#1F3A5F" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="612" y="198" font-family="Consolas, Monaco, monospace" font-size="14" font-weight="normal" fill="#6E7A88" text-anchor="start">events.publish</text>
+  
+
+  <!-- ====== LAYER 2: TRIGGER RELAY ====== -->
+  <g filter="url(#softShadow)">
+    <rect x="16" y="230" width="1168" height="110" fill="#F8F9FB" stroke="#1F3A5F" stroke-width="2.5" rx="6"/>
+  </g>
+  <text x="40" y="262" font-family="Inter, Calibri, Arial, sans-serif" font-size="20" font-weight="bold" fill="#1F3A5F" text-anchor="start">TRIGGER RELAY</text>
+  <text x="246" y="262" font-family="Inter, Calibri, Arial, sans-serif" font-size="14" font-weight="normal" fill="#6E7A88" text-anchor="start">— thin TPE service consuming upstream events</text>
+  <text x="40" y="294" font-family="Inter, Calibri, Arial, sans-serif" font-size="16" font-weight="normal" fill="#222222" text-anchor="start">·  Normalises upstream events to Novu trigger payload</text>
+  <text x="40" y="318" font-family="Inter, Calibri, Arial, sans-serif" font-size="16" font-weight="normal" fill="#222222" text-anchor="start">·  Computes stable transactionId from idempotency key (workflow-specific)</text>
+
+  <!-- arrow Trigger Relay → Novu -->
+  
+    <line x1="600" y1="340" x2="600" y2="406" stroke="#1F3A5F" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="612" y="378" font-family="Consolas, Monaco, monospace" font-size="14" font-weight="normal" fill="#6E7A88" text-anchor="start">POST /v1/events/trigger</text>
+  
+
+  <!-- ====== LAYER 3: NOVU PLATFORM ====== -->
+  <g filter="url(#softShadow)">
+    <rect x="16" y="410" width="1168" height="200" fill="#F8F9FB" stroke="#1F3A5F" stroke-width="2.5" rx="6"/>
+  </g>
+  <text x="40" y="442" font-family="Inter, Calibri, Arial, sans-serif" font-size="20" font-weight="bold" fill="#1F3A5F" text-anchor="start">NOVU PLATFORM</text>
+  <text x="246" y="442" font-family="Inter, Calibri, Arial, sans-serif" font-size="14" font-weight="normal" fill="#6E7A88" text-anchor="start">— self-hosted on AWS ap-south-1, Multi-AZ</text>
+
+  <!-- Novu sub-services as small inner boxes -->
+  
+        <rect x="28" y="470" width="277" height="60" fill="#FFFFFF" stroke="#3D6090" stroke-width="1.5" rx="4"/>
+        <text x="166.5" y="496" font-family="Inter, Calibri, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1F3A5F" text-anchor="middle">API</text>
+        <text x="166.5" y="516" font-family="Inter, Calibri, Arial, sans-serif" font-size="11" font-weight="normal" fill="#6E7A88" text-anchor="middle">validates payload, accepts triggers</text>
+      
+        <rect x="317" y="470" width="277" height="60" fill="#FFFFFF" stroke="#3D6090" stroke-width="1.5" rx="4"/>
+        <text x="455.5" y="496" font-family="Inter, Calibri, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1F3A5F" text-anchor="middle">Worker</text>
+        <text x="455.5" y="516" font-family="Inter, Calibri, Arial, sans-serif" font-size="11" font-weight="normal" fill="#6E7A88" text-anchor="middle">executes workflows, calls Bridge</text>
+      
+        <rect x="606" y="470" width="277" height="60" fill="#FFFFFF" stroke="#3D6090" stroke-width="1.5" rx="4"/>
+        <text x="744.5" y="496" font-family="Inter, Calibri, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1F3A5F" text-anchor="middle">Web</text>
+        <text x="744.5" y="516" font-family="Inter, Calibri, Arial, sans-serif" font-size="11" font-weight="normal" fill="#6E7A88" text-anchor="middle">admin UI (ops, integrations)</text>
+      
+        <rect x="895" y="470" width="277" height="60" fill="#FFFFFF" stroke="#3D6090" stroke-width="1.5" rx="4"/>
+        <text x="1033.5" y="496" font-family="Inter, Calibri, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1F3A5F" text-anchor="middle">WS</text>
+        <text x="1033.5" y="516" font-family="Inter, Calibri, Arial, sans-serif" font-size="11" font-weight="normal" fill="#6E7A88" text-anchor="middle">real-time inbox</text>
+      
+  <text x="40" y="568" font-family="Inter, Calibri, Arial, sans-serif" font-size="13" font-weight="normal" fill="#6E7A88" text-anchor="start">·  API → Worker (schedule)  ·  Worker → Bridge (HTTP, workflow definition + execution)</text>
+  <text x="40" y="590" font-family="Inter, Calibri, Arial, sans-serif" font-size="13" font-weight="normal" fill="#6E7A88" text-anchor="start">·  Inbound webhooks: delivery receipts and opt-out signals from channel providers</text>
+
+  <!-- ====== LAYER 4: BRIDGE + CHANNEL PROVIDERS (two-column) ====== -->
+  <!-- Branch arrows from Novu -->
+  
+    <line x1="360" y1="610" x2="360" y2="716" stroke="#1F3A5F" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="372" y="668" font-family="Consolas, Monaco, monospace" font-size="14" font-weight="normal" fill="#6E7A88" text-anchor="start">bridge call</text>
+  
+  
+    <line x1="840" y1="610" x2="840" y2="716" stroke="#1F3A5F" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="852" y="668" font-family="Consolas, Monaco, monospace" font-size="14" font-weight="normal" fill="#6E7A88" text-anchor="start">outbound dispatch</text>
+  
+
+  
+      <g filter="url(#softShadow)">
+        <rect x="16" y="720" width="569" height="230" fill="#F8F9FB" stroke="#1F3A5F" stroke-width="2.5" rx="6"/>
+        <rect x="615" y="720" width="569" height="230" fill="#F8F9FB" stroke="#1F3A5F" stroke-width="2.5" rx="6"/>
+      </g>
+      <text x="40" y="752" font-family="Inter, Calibri, Arial, sans-serif" font-size="20" font-weight="bold" fill="#1F3A5F" text-anchor="start">BRIDGE</text>
+      <text x="132" y="752" font-family="Inter, Calibri, Arial, sans-serif" font-size="14" font-weight="normal" fill="#6E7A88" text-anchor="start">— TPE-owned, in VPC</text>
+      <text x="40" y="784" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">·  49 workflows  (PH × 18, INV × 16, INS × 6,</text>
+      <text x="40" y="804" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">   OPS × 6, REG × 3)</text>
+      <text x="40" y="836" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">·  Middleware:</text>
+      <text x="56" y="856" font-family="Inter, Calibri, Arial, sans-serif" font-size="14" font-weight="normal" fill="#6E7A88" text-anchor="start">compliance  ·  audit-emit  ·  tenant-resolve</text>
+      <text x="40" y="888" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">·  Custom provider plugins:</text>
+      <text x="56" y="908" font-family="Inter, Calibri, Arial, sans-serif" font-size="14" font-weight="normal" fill="#6E7A88" text-anchor="start">MSG91  ·  Karix</text>
+
+      <text x="639" y="752" font-family="Inter, Calibri, Arial, sans-serif" font-size="20" font-weight="bold" fill="#1F3A5F" text-anchor="start">CHANNEL PROVIDERS</text>
+      <text x="639" y="784" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">·  Gupshup        (native, SMS / WA / RCS)</text>
+      <text x="639" y="808" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">·  MSG91          (plugin, SMS / WA)</text>
+      <text x="639" y="832" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">·  Karix          (plugin, SMS / WA)</text>
+      <text x="639" y="856" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">·  Email relay    (AWS SES Mumbai)</text>
+      <text x="639" y="880" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">·  Slack / Teams  (internal channels only)</text>
+      <text x="639" y="916" font-family="Inter, Calibri, Arial, sans-serif" font-size="13" font-weight="normal" fill="#6E7A88" text-anchor="start">Failover order: Gupshup → MSG91 → Karix</text>
+    
+
+  <!-- ====== LAYER 5: STORAGE + SUBSCRIBERS (two-column) ====== -->
+  
+    <line x1="360" y1="950" x2="360" y2="1056" stroke="#1F3A5F" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="372" y="1008" font-family="Consolas, Monaco, monospace" font-size="14" font-weight="normal" fill="#6E7A88" text-anchor="start">audit / registry / rules</text>
+  
+  
+    <line x1="840" y1="950" x2="840" y2="1056" stroke="#1F3A5F" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="852" y="1008" font-family="Consolas, Monaco, monospace" font-size="14" font-weight="normal" fill="#6E7A88" text-anchor="start">end-user delivery</text>
+  
+
+  
+      <g filter="url(#softShadow)">
+        <rect x="16" y="1060" width="569" height="230" fill="#F8F9FB" stroke="#1F3A5F" stroke-width="2.5" rx="6"/>
+        <rect x="615" y="1060" width="569" height="230" fill="#F8F9FB" stroke="#1F3A5F" stroke-width="2.5" rx="6"/>
+      </g>
+      <text x="40" y="1092" font-family="Inter, Calibri, Arial, sans-serif" font-size="20" font-weight="bold" fill="#1F3A5F" text-anchor="start">TPE STORAGE</text>
+      <text x="40" y="1124" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">·  audit_events       (Postgres, append-only)</text>
+      <text x="40" y="1152" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">·  Insurer Registry   (TS module, 11 carriers)</text>
+      <text x="40" y="1180" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">·  Compliance Rules   (TS modules, 30+ rules)</text>
+      <text x="40" y="1208" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">·  Translations       (en / hi, TS modules)</text>
+      <text x="40" y="1252" font-family="Inter, Calibri, Arial, sans-serif" font-size="13" font-weight="normal" fill="#6E7A88" text-anchor="start">Daily Parquet export to S3 (long-term retention)</text>
+
+      <text x="639" y="1092" font-family="Inter, Calibri, Arial, sans-serif" font-size="20" font-weight="bold" fill="#1F3A5F" text-anchor="start">SUBSCRIBERS</text>
+      <text x="639" y="1124" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">Policyholders     × ≈1,500</text>
+      <text x="639" y="1152" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">Investors         × ≈3,000</text>
+      <text x="639" y="1180" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">Insurer contacts  × 11 (B2B)</text>
+      <text x="639" y="1208" font-family="Inter, Calibri, Arial, sans-serif" font-size="15" font-weight="normal" fill="#222222" text-anchor="start">Internal users    × N (Slack / Teams handles)</text>
+      <text x="639" y="1252" font-family="Inter, Calibri, Arial, sans-serif" font-size="13" font-weight="normal" fill="#6E7A88" text-anchor="start">All modelled as Novu Subscribers, resolved at trigger time</text>
+    
+
+</svg>

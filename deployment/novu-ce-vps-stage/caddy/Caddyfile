@@ -1,0 +1,99 @@
+# =============================================================================
+# Novu CE — Caddy reverse proxy (VPS STAGE: IP-only HTTP, no TLS)
+# -----------------------------------------------------------------------------
+# This Caddyfile binds to :80 only — no hostname, no TLS. Deploy target is
+# http://103.138.96.180/. When DNS for vps.amarjitm2.com is set up later,
+# replace the `:80` block with `vps.amarjitm2.com { tls admin@... ... }` and
+# `docker compose restart caddy` — Caddy obtains the Let's Encrypt cert
+# automatically. HSTS is also commented out below because it would brick
+# clients on first visit if a misconfigured TLS fronting is later attempted.
+# =============================================================================
+
+:80 {
+
+    # ------------------------------------------------------------------------
+    # API and v1 endpoints
+    # ------------------------------------------------------------------------
+    @api path /api/* /v1/*
+    handle @api {
+        # strip /api prefix when proxying
+        uri strip_prefix /api
+        reverse_proxy api:3000 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+        }
+    }
+
+    # ------------------------------------------------------------------------
+    # WebSocket — sticky path
+    # ------------------------------------------------------------------------
+    @ws path /ws/*
+    handle @ws {
+        uri strip_prefix /ws
+        reverse_proxy ws:3002 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+            # WebSocket upgrade is handled automatically by Caddy
+        }
+    }
+
+    # ------------------------------------------------------------------------
+    # Bridge endpoint — code-first workflows
+    # On stage this is exposed on the IP. For prod, restrict to internal
+    # addressing or remove from public exposure entirely.
+    # ------------------------------------------------------------------------
+    @bridge path /bridge/*
+    handle @bridge {
+        uri strip_prefix /bridge
+        reverse_proxy bridge:4001 {
+            header_up Host {host}
+        }
+    }
+
+    # ------------------------------------------------------------------------
+    # TPE Admin UI — must come BEFORE the catch-all dashboard handler.
+    # ------------------------------------------------------------------------
+    @adminPath path /admin /admin/*
+    handle @adminPath {
+        reverse_proxy admin:3500 {
+            header_up Host {host}
+        }
+    }
+
+    # ------------------------------------------------------------------------
+    # Default: dashboard UI
+    # ------------------------------------------------------------------------
+    handle {
+        reverse_proxy dashboard:4000 {
+            header_up Host {host}
+        }
+    }
+
+    # ------------------------------------------------------------------------
+    # Logging
+    # ------------------------------------------------------------------------
+    log {
+        output file /data/access.log {
+            roll_size 100mb
+            roll_keep 10
+        }
+        format json
+    }
+
+    # ------------------------------------------------------------------------
+    # Security headers (HSTS commented out for IP-only HTTP — see header above)
+    # ------------------------------------------------------------------------
+    header {
+        # Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Remove server identification
+        -Server
+    }
+
+    # ------------------------------------------------------------------------
+    # Compression
+    # ------------------------------------------------------------------------
+    encode zstd gzip
+}

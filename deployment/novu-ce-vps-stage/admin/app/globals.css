@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /*
+   * shadcn/ui theme — TPE light mode.
+   * Primary is locked to TPE navy (HSL of #1B3A5C ≈ 211 54% 23%).
+   * Values are tuned to match TPE's enterprise palette: navy primary,
+   * amber warning, red destructive, green success, neutral grays.
+   */
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 211 54% 23%;          /* TPE navy #1B3A5C */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 211 65% 45%;           /* lighter brand blue for hovers / chips */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 26 83% 14%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 211 54% 23%;
+
+    --radius: 0.5rem;
+  }
+
+  /* Dark mode kept minimal — the admin lives in light mode for now;
+     adding the variables here means a future toggle is one className flip. */
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 8%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 211 65% 60%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 211 65% 60%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 63% 41%;
+    --destructive-foreground: 210 40% 98%;
+    --success: 142 65% 35%;
+    --success-foreground: 210 40% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 26 83% 14%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 211 65% 60%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+}
+
+/* Subtle backdrop dotting for the dashboard hero — purely decorative. */
+.bg-grid {
+  background-image: radial-gradient(circle at 1px 1px, hsl(var(--border)) 1px, transparent 0);
+  background-size: 20px 20px;
+}

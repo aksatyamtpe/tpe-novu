@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "outDir": "./dist-worker",
+    "rootDir": ".",
+    "declaration": false,
+    "sourceMap": false,
+    "lib": ["es2022", "dom"]
+  },
+  "include": [
+    "worker/**/*.ts",
+    "lib/analytics-db.ts",
+    "lib/campaigns.ts",
+    "lib/mongo.ts"
+  ],
+  "exclude": ["node_modules", ".next"]
+}

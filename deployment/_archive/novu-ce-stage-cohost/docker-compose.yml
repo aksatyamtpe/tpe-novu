@@ -1,0 +1,288 @@
+# ============================================================================
+# Novu Community Edition — Full-Feature Stack
+# ----------------------------------------------------------------------------
+# Services:
+#   mongodb         — primary datastore (workflows, subscribers, messages)
+#   redis-queue     — BullMQ job queue (AOF persistence ON)
+#   redis-cache     — DAL cache + widget feed (LRU eviction, no persistence)
+#   localstack      — S3-compatible storage for attachments / layouts (dev)
+#   api             — Novu REST API
+#   worker          — Workflow execution & channel dispatch
+#   ws              — WebSocket server for in-app inbox
+#   dashboard       — Operator UI (workflow editor, integrations, subscribers)
+#   bridge          — Code-first workflows via @novu/framework (sample app)
+#   caddy           — Reverse proxy + automatic HTTPS
+#
+# Image versions: pinned. Do NOT use :latest in any environment.
+# Update via the Makefile `upgrade` target (it runs migrations correctly).
+# ============================================================================
+
+name: novu-ce
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "5"
+
+x-novu-common-env: &novu-common-env
+  NODE_ENV: ${NODE_ENV:-production}
+  PORT: ${API_PORT:-3000}
+  API_ROOT_URL: ${API_ROOT_URL}
+  FRONT_BASE_URL: ${FRONT_BASE_URL}
+  HOST_NAME: ${HOST_NAME}
+  # Mongo
+  MONGO_URL: ${MONGO_URL}
+  MONGO_MIN_POOL_SIZE: ${MONGO_MIN_POOL_SIZE:-10}
+  MONGO_MAX_POOL_SIZE: ${MONGO_MAX_POOL_SIZE:-50}
+  # Redis - queue
+  REDIS_HOST: ${REDIS_HOST}
+  REDIS_PORT: ${REDIS_PORT:-6379}
+  REDIS_PASSWORD: ${REDIS_PASSWORD}
+  REDIS_DB_INDEX: 2
+  # Redis - cache (separate instance)
+  REDIS_CACHE_SERVICE_HOST: ${REDIS_CACHE_SERVICE_HOST}
+  REDIS_CACHE_SERVICE_PORT: ${REDIS_CACHE_SERVICE_PORT:-6379}
+  REDIS_CACHE_PASSWORD: ${REDIS_CACHE_PASSWORD}
+  # S3
+  S3_LOCAL_STACK: ${S3_LOCAL_STACK}
+  S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+  S3_REGION: ${S3_REGION}
+  AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+  AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+  # Secrets
+  JWT_SECRET: ${JWT_SECRET}
+  STORE_ENCRYPTION_KEY: ${STORE_ENCRYPTION_KEY}
+  NOVU_SECRET_KEY: ${NOVU_SECRET_KEY}
+  # Misc
+  DISABLE_USER_REGISTRATION: ${DISABLE_USER_REGISTRATION:-false}
+  SENTRY_DSN: ${SENTRY_DSN:-}
+
+services:
+
+  # --------------------------------------------------------------------------
+  # MongoDB — primary datastore
+  # --------------------------------------------------------------------------
+  mongodb:
+    image: mongo:7.0
+    container_name: novu-mongodb
+    restart: unless-stopped
+    logging: *default-logging
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongodb-data:/data/db
+      - mongodb-config:/data/configdb
+    ports:
+      - "127.0.0.1:27017:27017"   # bind to loopback only
+    networks: [novu]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+
+  # --------------------------------------------------------------------------
+  # Redis (queue) — BullMQ job durability. AOF on.
+  # --------------------------------------------------------------------------
+  redis-queue:
+    image: redis:7.2-alpine
+    container_name: novu-redis-queue
+    restart: unless-stopped
+    logging: *default-logging
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory-policy noeviction
+    volumes:
+      - redis-queue-data:/data
+    networks: [novu]
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "--no-auth-warning", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --------------------------------------------------------------------------
+  # Redis (cache) — separate instance. LRU eviction, no persistence required.
+  # --------------------------------------------------------------------------
+  redis-cache:
+    image: redis:7.2-alpine
+    container_name: novu-redis-cache
+    restart: unless-stopped
+    logging: *default-logging
+    command: >
+      redis-server
+      --requirepass ${REDIS_CACHE_PASSWORD}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+    networks: [novu]
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_CACHE_PASSWORD}", "--no-auth-warning", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --------------------------------------------------------------------------
+  # LocalStack — S3 emulator for dev. Replace with real S3 in production.
+  # --------------------------------------------------------------------------
+  localstack:
+    image: localstack/localstack:3.8
+    container_name: novu-localstack
+    restart: unless-stopped
+    logging: *default-logging
+    environment:
+      SERVICES: s3
+      DEFAULT_REGION: ${S3_REGION:-us-east-1}
+      AWS_DEFAULT_REGION: ${S3_REGION:-us-east-1}
+      DOCKER_HOST: unix:///var/run/docker.sock
+    volumes:
+      - localstack-data:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks: [novu]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:4566/_localstack/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # --------------------------------------------------------------------------
+  # Novu API
+  # --------------------------------------------------------------------------
+  api:
+    image: ghcr.io/novuhq/novu/api:${NOVU_VERSION}
+    container_name: novu-api
+    restart: unless-stopped
+    logging: *default-logging
+    depends_on:
+      mongodb:      { condition: service_healthy }
+      redis-queue:  { condition: service_healthy }
+      redis-cache:  { condition: service_healthy }
+      localstack:   { condition: service_healthy }
+    environment:
+      <<: *novu-common-env
+    ports:
+      # STAGE-COHOST: host port remapped 3000 → 13000 (devsecops-admin holds 3000)
+      - "127.0.0.1:13000:3000"
+    networks: [novu]
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://localhost:3000/v1/health-check"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+
+  # --------------------------------------------------------------------------
+  # Novu Worker — consumes BullMQ, executes workflows, dispatches to providers
+  # --------------------------------------------------------------------------
+  worker:
+    image: ghcr.io/novuhq/novu/worker:${NOVU_VERSION}
+    container_name: novu-worker
+    restart: unless-stopped
+    logging: *default-logging
+    depends_on:
+      mongodb:      { condition: service_healthy }
+      redis-queue:  { condition: service_healthy }
+      redis-cache:  { condition: service_healthy }
+    environment:
+      <<: *novu-common-env
+      PORT: 3004
+    networks: [novu]
+    stop_grace_period: 60s     # let BullMQ drain in-flight jobs
+
+  # --------------------------------------------------------------------------
+  # Novu WebSocket — real-time delivery to in-app inbox
+  # --------------------------------------------------------------------------
+  ws:
+    image: ghcr.io/novuhq/novu/ws:${NOVU_VERSION}
+    container_name: novu-ws
+    restart: unless-stopped
+    logging: *default-logging
+    depends_on:
+      api:          { condition: service_healthy }
+      redis-queue:  { condition: service_healthy }
+    environment:
+      <<: *novu-common-env
+      PORT: 3002
+      WS_CONTEXT_PATH: ${WS_CONTEXT_PATH:-}
+    ports:
+      # STAGE-COHOST: host port remapped 3002 → 13002 (avoid future collisions)
+      - "127.0.0.1:13002:3002"
+    networks: [novu]
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://localhost:3002/health-check"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # --------------------------------------------------------------------------
+  # Novu Dashboard — operator UI
+  # --------------------------------------------------------------------------
+  dashboard:
+    image: ghcr.io/novuhq/novu/dashboard:${NOVU_VERSION}
+    container_name: novu-dashboard
+    restart: unless-stopped
+    logging: *default-logging
+    depends_on:
+      api: { condition: service_healthy }
+    environment:
+      NEXT_PUBLIC_API_HOSTNAME: ${API_ROOT_URL}
+      NEXT_PUBLIC_WEBSOCKET_HOSTNAME: ${WS_PUBLIC_URL}
+      NEXT_PUBLIC_LEGACY_DASHBOARD_URL: ${LEGACY_DASHBOARD_URL:-}
+      NEXT_PUBLIC_NOVU_SELF_HOSTED: "true"
+      NEXT_PUBLIC_SELF_HOSTED_TUNNEL: ${BRIDGE_PUBLIC_URL}/api/novu
+    ports:
+      # STAGE-COHOST: host port remapped 4000 → 14000 (avoid future collisions)
+      - "127.0.0.1:14000:4000"
+    networks: [novu]
+
+  # --------------------------------------------------------------------------
+  # Bridge — code-first workflows using @novu/framework
+  # Built from ./bridge folder. Sample workflows demonstrate every step type.
+  # --------------------------------------------------------------------------
+  bridge:
+    build:
+      context: ./bridge
+      dockerfile: Dockerfile
+    container_name: novu-bridge
+    restart: unless-stopped
+    logging: *default-logging
+    depends_on:
+      api: { condition: service_healthy }
+    environment:
+      NOVU_SECRET_KEY: ${NOVU_SECRET_KEY}
+      NOVU_API_URL: http://api:3000
+      PORT: 4001
+    ports:
+      # STAGE-COHOST: host port remapped 4001 → 14001 (avoid future collisions)
+      - "127.0.0.1:14001:4001"
+    networks: [novu]
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://localhost:4001/api/novu"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # --------------------------------------------------------------------------
+  # Caddy is INTENTIONALLY OMITTED in the stage-cohost variant.
+  # Ports 80/443 are held by video-kyc-hosting-nginx-1 on this host.
+  # Access pattern: AWS SSM port-forwarding to 127.0.0.1:14000 / 13000 / 14001.
+  # See STAGE-COHOST-NOTES.md for the access recipe.
+  # --------------------------------------------------------------------------
+
+volumes:
+  mongodb-data:
+  mongodb-config:
+  redis-queue-data:
+  localstack-data:
+
+networks:
+  novu:
+    driver: bridge
+    name: novu
