@@ -44,6 +44,29 @@ export const IS_SELF_HOSTED = (window._env_?.VITE_SELF_HOSTED || import.meta.env
 
 export const IS_ENTERPRISE = (window._env_?.VITE_NOVU_ENTERPRISE || import.meta.env.VITE_NOVU_ENTERPRISE) === 'true';
 
+/**
+ * TPE patch (2026-05-02): Q2=E "Full CRUD" toggle.
+ *
+ * When enabled, code-first / Bridge-synced workflows (origin === EXTERNAL) are
+ * presented to the dashboard UI as if they were standard workflows
+ * (origin === INTERNAL). This lifts the upstream read-only restriction:
+ * operators can edit, delete, and re-sync workflows directly from the dashboard
+ * even when the source-of-truth lives in `bridge/workflows/*.ts`.
+ *
+ * Trade-off: if an operator edits a workflow in the dashboard and someone
+ * later runs `npx novu sync`, the dashboard edits get overwritten by the
+ * Bridge code. TPE accepts this trade-off as a deliberate operational choice
+ * (Q2=E in the architecture decision matrix).
+ *
+ * Coercion happens at the workflow fetch chokepoint:
+ *   - apps/dashboard/src/hooks/use-fetch-workflow.ts
+ *   - apps/dashboard/src/hooks/use-fetch-workflows.ts
+ *
+ * Set VITE_FULL_CRUD_ENABLED=true at build- or run-time to turn on.
+ */
+export const IS_FULL_CRUD_ENABLED =
+  (window._env_?.VITE_FULL_CRUD_ENABLED || import.meta.env.VITE_FULL_CRUD_ENABLED) === 'true';
+
 if (!IS_SELF_HOSTED && EE_AUTH_PROVIDER === 'clerk' && !CLERK_PUBLISHABLE_KEY) {
   throw new Error('Missing Clerk Publishable Key');
 }

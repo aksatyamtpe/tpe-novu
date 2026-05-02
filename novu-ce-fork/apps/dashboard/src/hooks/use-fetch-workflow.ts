@@ -5,6 +5,7 @@ import { getWorkflow } from '@/api/workflows';
 import { useEnvironment } from '@/context/environment/hooks';
 import { getIdFromSlug, WORKFLOW_DIVIDER } from '@/utils/id-utils';
 import { QueryKeys } from '@/utils/query-keys';
+import { coerceOriginForFullCrud } from '@/utils/workflow-crud';
 
 export const useFetchWorkflow = ({ workflowSlug }: { workflowSlug?: string }) => {
   const { currentEnvironment } = useEnvironment();
@@ -15,7 +16,12 @@ export const useFetchWorkflow = ({ workflowSlug }: { workflowSlug?: string }) =>
 
   const { data, isPending, error, refetch } = useQuery<WorkflowResponseDto>({
     queryKey: [QueryKeys.fetchWorkflow, currentEnvironment?._id, workflowId],
-    queryFn: () => getWorkflow({ environment: currentEnvironment!, workflowSlug }),
+    queryFn: async () => {
+      const wf = await getWorkflow({ environment: currentEnvironment!, workflowSlug });
+      // TPE Q2=E: when full-CRUD is enabled, present external/code-first workflows
+      // as standard so all downstream gates resolve to "editable / deletable".
+      return coerceOriginForFullCrud(wf);
+    },
     enabled: !!currentEnvironment?._id && !!workflowSlug,
   });
 
