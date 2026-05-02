@@ -1,6 +1,6 @@
-# Novu CE on EC2 — Skill Index
+# TPE Communication System — Skill Index
 
-Twelve skills covering the Track B (single-EC2 / VPS pilot) deployment lifecycle for the TPE Communication System on Novu Community Edition, including the 2026-05-01 sandbox-3.15-primary pivot.
+Thirteen skills covering deployment lifecycle, operational tasks, the 2026-05-01 sandbox-3.15-primary pivot, and enterprise document generation for the TPE Communication System on Novu Community Edition.
 
 ## Build sequence (use in order for a first deployment)
 
@@ -28,6 +28,12 @@ Twelve skills covering the Track B (single-EC2 / VPS pilot) deployment lifecycle
 |---|---|---|
 | 11 | [novu-ce-sandbox-bridge-recreate](novu-ce-sandbox-bridge-recreate/SKILL.md) | "recreate next-bridge", "sandbox bridge has placeholder creds", "restore real MSG91 + ICPaaS env on sandbox bridge" |
 | 12 | [novu-ce-pivot-rollback](novu-ce-pivot-rollback/SKILL.md) | "roll back the pivot", "bring TPE Admin back", "revert sandbox primary", "restore custom admin" |
+
+## Documentation skills
+
+| # | Skill | Trigger phrases |
+|---|---|---|
+| 13 | [tpe-enterprise-doc-generator](tpe-enterprise-doc-generator/SKILL.md) | "create enterprise document", "generate master document", "build status report", "make ADR", "create operator manual", "draft project status DOCX" |
 
 ## Scope
 
