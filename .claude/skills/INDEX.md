@@ -1,6 +1,6 @@
 # TPE Communication System — Skill Index
 
-Thirteen skills covering deployment lifecycle, operational tasks, the 2026-05-01 sandbox-3.15-primary pivot, and enterprise document generation for the TPE Communication System on Novu Community Edition.
+Fourteen skills covering deployment lifecycle, operational tasks, the 2026-05-01 sandbox-3.15-primary pivot, the 2026-05-02 dashboard fork + custom deploy, and enterprise document generation for the TPE Communication System on Novu Community Edition.
 
 ## Build sequence (use in order for a first deployment)
 
@@ -34,6 +34,12 @@ Thirteen skills covering deployment lifecycle, operational tasks, the 2026-05-01
 | # | Skill | Trigger phrases |
 |---|---|---|
 | 13 | [tpe-enterprise-doc-generator](tpe-enterprise-doc-generator/SKILL.md) | "create enterprise document", "generate master document", "build status report", "make ADR", "create operator manual", "draft project status DOCX" |
+
+## Fork + custom deployment skills (added 2026-05-02)
+
+| # | Skill | Trigger phrases |
+|---|---|---|
+| 14 | [novu-fe-fork-deploy](novu-fe-fork-deploy/SKILL.md) | "build dashboard locally", "deploy custom dashboard to VPS", "rebuild dashboard image", "push dashboard fork to sandbox", "iterate on dashboard FE" |
 
 ## Scope
 
