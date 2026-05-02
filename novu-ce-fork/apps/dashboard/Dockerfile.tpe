@@ -1,0 +1,45 @@
+# =============================================================================
+# TPE custom dashboard Dockerfile (slim variant)
+# =============================================================================
+# Replaces the upstream multi-stage Dockerfile with a single-stage that copies
+# our locally-built dist/ folder. Faster builds (~30s vs 15-30 min) because we
+# trust our local pnpm install + workspace builds + dashboard build.
+#
+# Use this Dockerfile when:
+#   - We've already run `pnpm --filter @novu/dashboard build` locally and have
+#     a fresh dist/ folder
+#   - We just want to package the dist for VPS deployment
+#
+# Use the upstream `dockerfile` (no .tpe suffix) when:
+#   - You want a fully reproducible build inside Docker (for CI/CD or release)
+#   - You don't trust the local dist/ for some reason
+#
+# Created 2026-05-02 for the TPE Communication System fork in
+# https://github.com/aksatyamtpe/tpe-novu
+# =============================================================================
+
+FROM node:22.22-alpine3.23
+
+# Patch CVEs in alpine base — same upgrade pattern as upstream
+RUN apk upgrade --no-cache && \
+    apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main --upgrade \
+      libcrypto3 libssl3 musl musl-utils && \
+    npm --no-update-notifier --no-fund --global install http-server && \
+    rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+
+USER 1000
+WORKDIR /app
+
+# Copy locally-built artifacts (must run `pnpm --filter @novu/dashboard build` first)
+COPY --chown=1000:1000 apps/dashboard/dist /app/dist
+COPY --chown=1000:1000 apps/dashboard/package.json /app/package.json
+COPY --chown=1000:1000 apps/dashboard/docker-entrypoint.sh /app/docker-entrypoint.sh
+
+# The entrypoint script reads VITE_* env vars at container start and injects
+# them into dist/index.html as window._env_, so the same image works in
+# different environments (sandbox, prod, local) by changing env vars.
+RUN chmod +x /app/docker-entrypoint.sh
+
+ENTRYPOINT [ "/app/docker-entrypoint.sh" ]
+EXPOSE 4000
+CMD [ "http-server", "dist", "-p", "4000", "-d", "false", "--proxy", "http://localhost:4000?" ]
