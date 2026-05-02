@@ -23,7 +23,7 @@ from docx.shared import Pt
 from _doc_helpers import (
     NAVY, BLUE, GREEN, ORANGE, RED, DARK, MEDIUM, WHITE,
     LIGHT, ALT_ROW, HEADER_BG, SUCCESS_BG, WARN_BG, DANGER_BG,
-    DEFAULT_AUTHOR, DEFAULT_BY, DEFAULT_FOR, DEFAULT_ORG_LEGAL, DEFAULT_ORG_FULL,
+    DEFAULT_AUTHOR, DEFAULT_FOR, DEFAULT_ORG_LEGAL, DEFAULT_ORG_FULL,
     set_cell_bg, set_cell_borders, lock_table_widths,
     style_run, add_para, add_bullet, add_section_heading, add_table,
     add_status_badge_table, add_color_band, add_callout, add_metric_tiles,
@@ -71,8 +71,8 @@ def add_cover_page(doc):
         ("Document ID",     DOC_ID),
         ("Version",         DOC_VERSION),
         ("Date issued",     TODAY),
-        ("Prepared by",     f"{DEFAULT_AUTHOR}  ·  {DEFAULT_BY}"),
-        ("Prepared for",    DEFAULT_FOR),
+        ("Prepared by",     DEFAULT_AUTHOR),
+        ("Prepared for",    DEFAULT_ORG_FULL),
         ("Audience",        "Stakeholders, leadership, audit committee"),
         ("Classification",  "Internal / Confidential"),
         ("Review cycle",    "Quarterly (next: Aug 2026)"),
@@ -104,7 +104,7 @@ def s1_doc_info(doc):
             ["Document ID",         DOC_ID],
             ["Version",             DOC_VERSION],
             ["Date issued",         TODAY],
-            ["Owner",               f"{DEFAULT_AUTHOR}, {DEFAULT_BY}"],
+            ["Owner",               f"{DEFAULT_AUTHOR}, {DEFAULT_ORG_FULL}"],
             ["For",                 DEFAULT_ORG_FULL],
             ["Stakeholders",        "CTO, Compliance Lead, Engineering Lead, CX Lead, Operations Lead, Infrastructure Lead, Quality Lead"],
             ["Classification",      "Internal / Confidential"],
@@ -677,7 +677,7 @@ def main():
     s16_effort(doc)
     s17_commit_breakdown(doc)
     s18_references(doc)
-    add_footer_block(doc, DEFAULT_AUTHOR, DEFAULT_BY, DEFAULT_FOR)
+    add_footer_block(doc, DEFAULT_AUTHOR, DEFAULT_ORG_FULL)
     doc.save(OUTPUT_FILE)
     print(f"✓ Generated {OUTPUT_FILE}")
 

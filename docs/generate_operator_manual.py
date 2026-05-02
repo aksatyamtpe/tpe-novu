@@ -22,7 +22,7 @@ from docx.shared import Pt
 from _doc_helpers import (
     NAVY, BLUE, GREEN, ORANGE, RED, DARK, MEDIUM, WHITE,
     LIGHT, ALT_ROW, HEADER_BG, SUCCESS_BG, WARN_BG, DANGER_BG,
-    DEFAULT_AUTHOR, DEFAULT_BY, DEFAULT_FOR, DEFAULT_ORG_LEGAL, DEFAULT_ORG_FULL,
+    DEFAULT_AUTHOR, DEFAULT_FOR, DEFAULT_ORG_LEGAL, DEFAULT_ORG_FULL,
     set_cell_bg, set_cell_borders, lock_table_widths,
     style_run, add_para, add_bullet, add_section_heading, add_table,
     add_status_badge_table, add_color_band, add_callout, add_metric_tiles,
@@ -70,8 +70,8 @@ def add_cover_page(doc):
         ("Document ID",     DOC_ID),
         ("Version",         DOC_VERSION),
         ("Date issued",     TODAY),
-        ("Prepared by",     f"{DEFAULT_AUTHOR}  ·  {DEFAULT_BY}"),
-        ("Prepared for",    DEFAULT_FOR),
+        ("Prepared by",     DEFAULT_AUTHOR),
+        ("Prepared for",    DEFAULT_ORG_FULL),
         ("Audience",        "TPE Operations Team"),
         ("Classification",  "Internal / Confidential"),
         ("Document family", "Companion to Charter v1.0 + End User Guide v1.0"),
@@ -956,7 +956,7 @@ def main():
     add_section_13_daily_checklist(doc)
     add_section_14_glossary(doc)
     add_section_15_quickref(doc)
-    add_footer_block(doc, DEFAULT_AUTHOR, DEFAULT_BY, DEFAULT_FOR)
+    add_footer_block(doc, DEFAULT_AUTHOR, DEFAULT_ORG_FULL)
     doc.save(OUTPUT_FILE)
     print(f"✓ Generated {OUTPUT_FILE}")
 

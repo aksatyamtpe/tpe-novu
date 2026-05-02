@@ -9,7 +9,7 @@ Follows the CLAUDE.md enterprise standards:
   - Navy (#1B3A5C) header rows + alternating row shading
   - Status badges using `●` (Word-compatible, NEVER emoji)
   - Classification "Internal / Confidential" in red
-  - Cover page + footer attribution to TechDigital WishTree
+  - Cover page + footer attribution to Fairvalue Insuretech (The Policy Exchange)
 """
 from __future__ import annotations
 import datetime as _dt
@@ -46,7 +46,8 @@ DOC_VERSION   = "1.0"
 DOC_DATE      = _dt.date.today().strftime("%d %b %Y")
 CLASSIF       = "Internal / Confidential"
 ORG_FOR       = "The Policy Exchange"
-ORG_BY        = "TechDigital WishTree"
+ORG_LEGAL     = "Fairvalue Insuretech Pvt. Ltd."
+ORG_FULL      = f"{ORG_FOR} ({ORG_LEGAL})"
 AUTHOR        = "Ashish Kumar Satyam"
 
 OUTPUT = Path(__file__).resolve().parent / \
@@ -295,8 +296,7 @@ def cover_page(doc):
         ("Date",              DOC_DATE),
         ("Classification",    CLASSIFICATION_LINE),
         ("Author",            AUTHOR),
-        ("Prepared By",       ORG_BY),
-        ("Prepared For",      ORG_FOR),
+        ("Prepared For",      ORG_FULL),
         ("Audience",          "Operations / Customer-Care / Marketing — operators of the TPE Comms platform"),
     ]
     add_table_styled(doc, ["Field", "Value"], meta_rows,
@@ -314,10 +314,10 @@ def cover_page(doc):
         cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
         cell.paragraphs[0].paragraph_format.space_before = Pt(4 if r_idx == 0 else 2)
         cell.paragraphs[0].paragraph_format.space_after = Pt(2 if r_idx == 0 else 4)
-    r = foot.rows[0].cells[0].paragraphs[0].add_run(f"Prepared by {ORG_BY}")
+    r = foot.rows[0].cells[0].paragraphs[0].add_run(f"Prepared by {AUTHOR}")
     style_run(r, font="Arial", size=12, bold=True, color=WHITE)
     r = foot.rows[1].cells[0].paragraphs[0].add_run(
-        f"For {ORG_FOR}  •  www.thepolicyexchange.com  •  {DOC_DATE}")
+        f"For {ORG_FULL}  •  www.thepolicyexchange.com  •  {DOC_DATE}")
     style_run(r, font="Arial", size=10, color=WHITE)
 
     doc.add_page_break()
@@ -346,7 +346,7 @@ def section_doc_control(doc):
     add_p(doc, "Document owner & distribution", bold=True, color=NAVY, space_after=4)
     add_table_styled(doc, ["Role", "Name / team"],
         [
-            ("Document Owner",          "Engineering Lead, TechDigital WishTree"),
+            ("Document Owner",          "Engineering Lead, The Policy Exchange"),
             ("Reviewer (Compliance)",   "Compliance Lead, The Policy Exchange"),
             ("Reviewer (CX)",           "Customer Experience Lead, The Policy Exchange"),
             ("Approver",                "Project Owner / CTO, The Policy Exchange"),
@@ -1095,7 +1095,7 @@ def section_references(doc):
     add_table_styled(doc,
         ["Role / channel", "Contact"],
         [
-            ("Engineering Lead",          ORG_BY + " — Slack #tpe-comms-help"),
+            ("Engineering Lead",          "The Policy Exchange — Slack #tpe-comms-help"),
             ("On-call (Sev-1)",           "PagerDuty / Slack #tpe-comms-oncall"),
             ("Compliance Lead",           "compliance@thepolicyexchange.com"),
             ("CX Lead",                   "cx@thepolicyexchange.com"),

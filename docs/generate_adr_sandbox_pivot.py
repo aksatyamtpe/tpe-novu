@@ -20,7 +20,7 @@ from docx.shared import Pt
 from _doc_helpers import (
     NAVY, BLUE, GREEN, ORANGE, RED, DARK, MEDIUM, WHITE,
     LIGHT, ALT_ROW, HEADER_BG, SUCCESS_BG, WARN_BG, DANGER_BG,
-    DEFAULT_AUTHOR, DEFAULT_BY, DEFAULT_FOR, DEFAULT_ORG_LEGAL, DEFAULT_ORG_FULL,
+    DEFAULT_AUTHOR, DEFAULT_FOR, DEFAULT_ORG_LEGAL, DEFAULT_ORG_FULL,
     set_cell_bg, set_cell_borders, lock_table_widths,
     style_run, add_para, add_bullet, add_section_heading, add_table,
     add_status_badge_table, add_color_band, add_callout, add_metric_tiles,
@@ -87,8 +87,8 @@ def add_cover_page(doc):
         ("Document ID",     DOC_ID),
         ("Version",         DOC_VERSION),
         ("Decision date",   DECISION_DATE),
-        ("Authors",         f"{DEFAULT_AUTHOR}  ·  {DEFAULT_BY}"),
-        ("For",             DEFAULT_FOR),
+        ("Authors",         DEFAULT_AUTHOR),
+        ("For",             DEFAULT_ORG_FULL),
         ("Audience",        "Engineering team, architecture review board, future maintainers"),
         ("Status",          "● ACCEPTED — implementation complete"),
         ("Supersedes",      "(none — first ADR for this project)"),
@@ -120,7 +120,7 @@ def s1_doc_info(doc):
             ["Title",             "Sandbox-3.15 Promoted to Primary"],
             ["Status",            "ACCEPTED (implementation complete)"],
             ["Decision date",     DECISION_DATE],
-            ["Authors",           f"{DEFAULT_AUTHOR}, {DEFAULT_BY}"],
+            ["Authors",           f"{DEFAULT_AUTHOR}, {DEFAULT_ORG_FULL}"],
             ["For",               DEFAULT_ORG_FULL],
             ["Audience",          "Engineering, architecture review, future maintainers"],
             ["Approvers",         "Engineering Lead (decided); informed: CTO, Compliance Lead, Operations Lead"],
@@ -402,7 +402,7 @@ def main():
     s9_reversal(doc)
     s10_review_trigger(doc)
     s11_references(doc)
-    add_footer_block(doc, DEFAULT_AUTHOR, DEFAULT_BY, DEFAULT_FOR)
+    add_footer_block(doc, DEFAULT_AUTHOR, DEFAULT_ORG_FULL)
     doc.save(OUTPUT_FILE)
     print(f"✓ Generated {OUTPUT_FILE}")
 

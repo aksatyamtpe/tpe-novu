@@ -156,7 +156,7 @@ export function Shell({ children, active }: { children: React.ReactNode; active?
 
         {/* Footer */}
         <footer className="border-t bg-card/40 px-6 py-3 text-center text-xs text-muted-foreground">
-          TPE Communication System  TechDigital WishTree  for The Policy Exchange
+          TPE Communication System  Fairvalue Insuretech / The Policy Exchange
         </footer>
       </div>
     </div>

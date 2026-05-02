@@ -39,8 +39,10 @@ WARN_BG     = "FFF8E1"
 DANGER_BG   = "FFEBEE"
 
 # Default attribution per CLAUDE.md
+# As of 2026-05-02: author is a direct Fairvalue Insuretech employee.
+# No intermediate vendor/agency attribution. CLAUDE.md global rule mandates
+# asking the user which company before generating any document.
 DEFAULT_AUTHOR     = "Ashish Kumar Satyam"
-DEFAULT_BY         = "TechDigital WishTree"
 DEFAULT_FOR        = "The Policy Exchange"
 DEFAULT_ORG_LEGAL  = "Fairvalue Insuretech Pvt. Ltd."
 DEFAULT_ORG_FULL   = f"{DEFAULT_FOR} ({DEFAULT_ORG_LEGAL})"
@@ -376,8 +378,13 @@ def setup_document(doc_title_short, doc_id, version):
     return doc
 
 
-def add_footer_block(doc, prepared_by, by_org, for_org):
-    """Navy footer block at the very end of the document with attribution."""
+def add_footer_block(doc, prepared_by, org_name, role=None):
+    """Navy footer block at the very end of the document with attribution.
+
+    Signature changed 2026-05-02 — no longer takes a separate `by_org` parameter
+    because the author is now a direct employee of `org_name`. Optional `role`
+    can be passed to add a job-title line (e.g., "Engineering Lead").
+    """
     add_para(doc, "", space_after=12)
     tbl = doc.add_table(rows=1, cols=1)
     tbl.autofit = False
@@ -395,9 +402,14 @@ def add_footer_block(doc, prepared_by, by_org, for_org):
     p2.alignment = WD_ALIGN_PARAGRAPH.LEFT
     r2 = p2.add_run(prepared_by)
     style_run(r2, size=11, bold=True, color=WHITE)
+    if role:
+        p_role = c.add_paragraph()
+        p_role.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        r_role = p_role.add_run(role)
+        style_run(r_role, size=9, italic=True, color=WHITE)
     p3 = c.add_paragraph()
     p3.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    r3 = p3.add_run(f"{by_org}  ·  for {for_org}")
+    r3 = p3.add_run(org_name)
     style_run(r3, size=9, color=WHITE)
     p4 = c.add_paragraph()
     p4.alignment = WD_ALIGN_PARAGRAPH.LEFT
