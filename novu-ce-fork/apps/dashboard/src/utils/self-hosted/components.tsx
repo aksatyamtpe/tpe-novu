@@ -4,8 +4,22 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/primitives/button';
 import { Input } from '../../components/primitives/input';
 import { API_HOSTNAME } from '../../config';
+import { getJwtToken, isJwtValid } from './jwt-manager';
 
 const JWT_STORAGE_KEY = 'self-hosted-jwt';
+
+/**
+ * Read auth state directly from localStorage (always fresh).
+ * Used by SignedIn / SignedOut so they don't depend on stale window.Clerk
+ * which is set once at module load.
+ *
+ * TPE patch (2026-05-02): upstream prod has SignedIn always rendering children
+ * regardless of auth state — that races with SignedOut and creates the login
+ * loop. This helper makes both gates check the same source of truth.
+ */
+function isCurrentlyLoggedIn(): boolean {
+  return isJwtValid(getJwtToken());
+}
 
 export function OrganizationList() {
   return <></>;
@@ -48,8 +62,14 @@ export function SignIn() {
 
       if (data.data.token) {
         localStorage.setItem(JWT_STORAGE_KEY, data.data.token);
-        (window as any).Clerk = { ...((window as any).Clerk || {}), loggedIn: true };
-        navigate('/');
+        // TPE patch: removed manual `(window as any).Clerk = { ..., loggedIn: true }`
+        // because Clerk.loggedIn is now a getter that reads localStorage on every
+        // access. Mutating Clerk here would CLOBBER the getter (replacing it with
+        // a static value), breaking subsequent auth checks.
+        // Use full reload instead of navigate so all components re-evaluate auth
+        // state cleanly. SPA navigate('/') was racing with React's render of
+        // the protected tree before localStorage write was visible.
+        window.location.href = '/';
       } else {
         throw new Error('No token received');
       }
@@ -207,8 +227,8 @@ export function SignUp() {
 
       if (data.data.token) {
         localStorage.setItem(JWT_STORAGE_KEY, data.data.token);
-        (window as any).Clerk = { ...((window as any).Clerk || {}), loggedIn: true };
-        navigate('/');
+        // TPE patch (see SignIn handler comment): full reload, don't mutate Clerk
+        window.location.href = '/';
       } else {
         throw new Error('No token received after sign up');
       }
@@ -331,7 +351,9 @@ export function RedirectToSignIn({ children }: { children: any }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!(window as any).Clerk.loggedIn) {
+    // TPE patch: read fresh from localStorage (window.Clerk.loggedIn can be
+    // stale because it's set once at module load).
+    if (!isCurrentlyLoggedIn()) {
       navigate('/auth/sign-in');
     }
   }, [navigate]);
@@ -340,11 +362,17 @@ export function RedirectToSignIn({ children }: { children: any }) {
 }
 
 export function SignedIn({ children }: { children: any }) {
+  // TPE patch (2026-05-02): upstream returned children unconditionally, which
+  // races with SignedOut on the same render — creates a loop where the
+  // dashboard tries to make authenticated API calls (with empty Bearer)
+  // while RedirectToSignIn is also navigating to /sign-in. Now it gates
+  // properly on JWT validity.
+  if (!isCurrentlyLoggedIn()) return null;
   return <>{children}</>;
 }
 
 export function SignedOut({ children }: { children: any }) {
-  if ((window as any).Clerk.loggedIn) return null;
-
+  // TPE patch: read fresh from localStorage instead of stale window.Clerk
+  if (isCurrentlyLoggedIn()) return null;
   return <>{children}</>;
 }

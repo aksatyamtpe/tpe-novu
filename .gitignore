@@ -112,6 +112,9 @@ Icon?
 /novu-ce-fork/**/.env.production
 !/novu-ce-fork/**/.env.example
 !/novu-ce-fork/**/.env.agent
+# Allow dashboard's .env.production — needed at BUILD time so vite alias for
+# self-hosted mode fires. Contains only mode flags, NO secrets.
+!/novu-ce-fork/apps/dashboard/.env.production
 /novu-ce-fork/**/playwright-report/
 /novu-ce-fork/**/test-results/
 /novu-ce-fork/**/*.tsbuildinfo
