@@ -88,6 +88,8 @@ pnpm-debug.log*
 # =============================================================================
 .claude/sessions/
 .claude/cache/
+.claude/scheduled_tasks.lock
+.claude/*.lock
 
 # macOS folder-icon metadata (0-byte files)
 Icon

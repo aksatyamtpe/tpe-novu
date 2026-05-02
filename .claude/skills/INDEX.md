@@ -39,7 +39,7 @@ Fourteen skills covering deployment lifecycle, operational tasks, the 2026-05-01
 
 | # | Skill | Trigger phrases |
 |---|---|---|
-| 14 | [novu-fe-fork-deploy](novu-fe-fork-deploy/SKILL.md) | "build dashboard locally", "deploy custom dashboard to VPS", "rebuild dashboard image", "push dashboard fork to sandbox", "iterate on dashboard FE" |
+| 14 | [novu-fe-fork-deploy](novu-fe-fork-deploy/SKILL.md) | "build dashboard locally", "deploy custom dashboard to VPS", "rebuild dashboard image", "push dashboard fork to sandbox", "iterate on dashboard FE", "fix login loop", "toggle Q2=E full CRUD flag", "bump dashboard to new Novu version" |
 
 ## Scope
 
