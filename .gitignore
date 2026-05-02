@@ -94,3 +94,24 @@ Icon
 
 # Match macOS Icon files with trailing CR — Icon? catches any single char after "Icon"
 Icon?
+
+# =============================================================================
+# Novu CE fork — installed dependencies + build artifacts
+# (the SOURCE code IS committed; only dependencies + builds are excluded)
+# =============================================================================
+/novu-ce-fork/**/node_modules/
+/novu-ce-fork/**/.nx/
+/novu-ce-fork/**/dist/
+/novu-ce-fork/**/build/
+/novu-ce-fork/**/.next/
+/novu-ce-fork/**/.turbo/
+/novu-ce-fork/**/coverage/
+/novu-ce-fork/**/.env
+/novu-ce-fork/**/.env.local
+/novu-ce-fork/**/.env.development
+/novu-ce-fork/**/.env.production
+!/novu-ce-fork/**/.env.example
+!/novu-ce-fork/**/.env.agent
+/novu-ce-fork/**/playwright-report/
+/novu-ce-fork/**/test-results/
+/novu-ce-fork/**/*.tsbuildinfo
